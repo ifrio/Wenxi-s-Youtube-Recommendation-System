@@ -23,39 +23,39 @@ def html(url):
   with open("youtube.txt","w+",encoding='UTF-8') as f:
     f.write(data.content.decode("utf-8"))
   # read the file
-  f = open("youtube.txt")
-  lines = f.read()
-  f.close()
-  return lines
+  return data.content.decode("utf-8")
 
 def save(name, data):
   with open(name + ".txt","wb") as f:
     pickle.dump(data,f)
 
-def getlink(url):
+def getlink(url,new = False):
+  if new == True:
+    # start to collect YouTube links
+    links = []
+    beginning = '/watch?v='
+    v = []
 
-  # start to collect YouTube links
-  links = []
-  beginning = '/watch?v='
-  v = []
+    # the text contains YT video links
+    line1 = html(url)
 
-  # the text contains YT video links
-  line1 = html(url)
+    while beginning in line1:
+      a = line1.index(beginning) + len(beginning)
+      link = line1[a:a+11]
+      if link not in v and link != '':
+        v.append(link)
 
-  while beginning in line1:
-    a = line1.index(beginning) + len(beginning)
-    link = line1[a:a+11]
-    if link not in v and link != '':
-      v.append(link)
+        link = 'https://www.youtube.com/watch?v=' + str(link)
 
-      link = 'https://www.youtube.com/watch?v=' + str(link)
+        with open("video list.txt","a") as f:
+          f.write("\n"+link)
 
-      with open("video list.txt","a") as f:
-        f.write("\n"+link)
-
-      links.append(link)
-    line1 = line1[a+11:]
-  return(links)
+        links.append(link)
+      line1 = line1[a+11:]
+  else:
+    with open("video list.txt","r") as f:
+      links = f.read().split()
+  return links
 
 def get_data(link):
   a = '"videoDetails":'
@@ -75,13 +75,20 @@ def getUsefulData(info):
         data.append(info[col])
   return data
 
-def xdata(link):   
+def xdata(link,new= False):   
   xdata = []
-  videolinks = getlink(link)
+  videolinks = getlink(link,new)
+  count = 0
+
   for video in videolinks:
-    info = get_data(video)
-    data = getUsefulData(info)
-    xdata.append(data)
+    print(count)
+    try:
+      info = get_data(video)
+      data = getUsefulData(info)
+      count = count + 1
+      xdata.append(data)
+    except ValueError:
+      save("x_data",xdata)
   
   save("x_data",xdata)
 
@@ -148,7 +155,6 @@ def experiment_2b():
   return model.score(vectorizer.transform(list(data["title"])), data.index)
 
 def results():
-  print(loadData()[['title']])
   print("#################### Experiments ####################")
   print(" ")
   print("########## Experiment #1A: Short Desc. Data #########")
@@ -164,7 +170,8 @@ def results():
   print("########## Experiment #2B: SVM ######################")
   print("Experiment 2b) Accuracy: ", experiment_2b())
 
-@app.route("/recommendVideo/<sentence>")
+results()
+#@app.route("/recommendVideo/<sentence>")
 def recommendVideo(sentence):
   data = loadData()
   x = data["title"]
@@ -174,4 +181,4 @@ def recommendVideo(sentence):
   model.fit(vectorizer.fit_transform(list(x)), y)
   return str(model.predict(vectorizer.transform([sentence])))
 
-app.run(host="0.0.0.0")
+#app.run(host="0.0.0.0")
