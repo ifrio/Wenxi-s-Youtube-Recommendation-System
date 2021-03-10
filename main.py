@@ -1,4 +1,5 @@
-######################### Plan ###################################
+#https://themeforest.net/category/cms-themes?sort=sales
+#https://domains.google/
 import requests
 from requests_html import HTMLSession
 import json
@@ -8,8 +9,10 @@ from sklearn.feature_extraction.text import TfidfVectorizer
 import pickle
 from sklearn.neighbors import KNeighborsClassifier
 from flask import Flask
+from flask_cors import CORS
 
 app = Flask(__name__)
+CORS(app)
 session = HTMLSession()
 vectorizer = TfidfVectorizer()
 
