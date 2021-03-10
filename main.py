@@ -170,8 +170,7 @@ def results():
   print("########## Experiment #2B: SVM ######################")
   print("Experiment 2b) Accuracy: ", experiment_2b())
 
-results()
-#@app.route("/recommendVideo/<sentence>")
+@app.route("/recommendVideo/<sentence>")
 def recommendVideo(sentence):
   data = loadData()
   x = data["title"]
@@ -181,4 +180,4 @@ def recommendVideo(sentence):
   model.fit(vectorizer.fit_transform(list(x)), y)
   return str(model.predict(vectorizer.transform([sentence])))
 
-#app.run(host="0.0.0.0")
+app.run(host="0.0.0.0")
